@@ -1,5 +1,11 @@
 # Credenciales locales: no se suben
 contrasena-odoo.txt
+contrasena-*.txt
+token_github_*.txt
 
 # Guías de defensa: material personal, nunca se suben a GitHub
 guia-defensa-*.md
+
+# Notas de trabajo internas (no forman parte de la entrega)
+ut03-practica-odoo-v3/cowork-brief.md
+ut03-practica-odoo-v3/al-llegar-a-casa.md

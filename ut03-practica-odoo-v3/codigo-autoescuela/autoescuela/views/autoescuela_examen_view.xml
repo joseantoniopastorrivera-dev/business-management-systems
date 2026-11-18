@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista lista (tree) de exámenes -->
+    <record id="autoescuela_examen_view_tree" model="ir.ui.view">
+        <field name="name">autoescuela.examen.view.tree</field>
+        <field name="model">autoescuela.examen</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="fecha"/>
+                <field name="precio" sum="Total"/>
+                <field name="moneda_id"/>
+                <field name="clases" sum="Total"/>
+                <field name="carnet"/>
+                <field name="aprobado"/>
+                <field name="alumno_id"/>
+                <field name="autoescuela_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista formulario de examen -->
+    <record id="autoescuela_examen_view_form" model="ir.ui.view">
+        <field name="name">autoescuela.examen.view.form</field>
+        <field name="model">autoescuela.examen</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group string="INFORMACIÓN GENERAL">
+                            <field name="name"/>
+                            <field name="fecha"/>
+                            <field name="precio"/>
+                            <field name="moneda_id"/>
+                            <field name="clases"/>
+                            <field name="carnet"/>
+                            <field name="aprobado"/>
+                            <field name="alumno_id"/>
+                        </group>
+                        <group>
+                            <field name="autoescuela_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+                <!-- Historial de cambios (mail.thread): aquí se ve el tracking del código -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista calendario: cada examen sale en su fecha con su display_name
+         («Código Examen: SGE00001 - Carnet: B») -->
+    <record id="autoescuela_examen_view_calendar" model="ir.ui.view">
+        <field name="name">autoescuela.examen.view.calendar</field>
+        <field name="model">autoescuela.examen</field>
+        <field name="arch" type="xml">
+            <calendar string="Exámenes" date_start="fecha" mode="month" color="carnet">
+                <field name="alumno_id"/>
+                <field name="aprobado"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda: filtro (agrupación) por el campo carnet -->
+    <record id="autoescuela_examen_view_search" model="ir.ui.view">
+        <field name="name">autoescuela.examen.view.search</field>
+        <field name="model">autoescuela.examen</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="alumno_id"/>
+                <field name="carnet"/>
+                <filter name="aprobados" string="Aprobados" domain="[('aprobado', '=', True)]"/>
+                <group expand="1" string="Agrupar por">
+                    <filter name="agrupar_carnet" string="Carnet" context="{'group_by': 'carnet'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción de ventana: la usa el menú «Exámenes por Alumno».
+         search_default_agrupar_carnet = 1 deja el filtro por carnet activado por defecto -->
+    <record id="autoescuela_examen_action" model="ir.actions.act_window">
+        <field name="name">Exámenes</field>
+        <field name="res_model">autoescuela.examen</field>
+        <field name="view_mode">tree,form,calendar</field>
+        <field name="search_view_id" ref="autoescuela_examen_view_search"/>
+        <field name="context">{'search_default_agrupar_carnet': 1}</field>
+    </record>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Categoría: los grupos salen como «Autoescuela / Gestor» y «Autoescuela / Director» -->
+    <record id="module_category_autoescuela" model="ir.module.category">
+        <field name="name">Autoescuela</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <!-- Gestor: todo sobre Alumno, Profesor y Examen; solo lectura sobre Autoescuela -->
+    <record id="group_autoescuela_gestor" model="res.groups">
+        <field name="name">Gestor</field>
+        <field name="category_id" ref="module_category_autoescuela"/>
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+
+    <!-- Director: hereda Gestor (implied_ids) y además gestiona Autoescuela -->
+    <record id="group_autoescuela_director" model="res.groups">
+        <field name="name">Director</field>
+        <field name="category_id" ref="module_category_autoescuela"/>
+        <field name="implied_ids" eval="[(4, ref('group_autoescuela_gestor'))]"/>
+        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>

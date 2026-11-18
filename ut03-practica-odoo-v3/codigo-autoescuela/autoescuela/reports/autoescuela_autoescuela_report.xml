@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Acción del informe: menú ⚙ > Imprimir del formulario de autoescuela -->
+    <record id="autoescuela_autoescuela_report_action" model="ir.actions.report">
+        <field name="name">Informe de autoescuela</field>
+        <field name="model">autoescuela.autoescuela</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">autoescuela.autoescuela_autoescuela_report_template</field>
+        <field name="report_file">autoescuela.autoescuela_autoescuela_report_template</field>
+        <field name="print_report_name">'Informe de autoescuela - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_autoescuela_autoescuela"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="autoescuela_autoescuela_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="autoescuela">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 t-field="autoescuela.name"/>
+                        <p>Domicilio: <span t-field="autoescuela.domicilio"/></p>
+                        <p>Localidad: <span t-field="autoescuela.localidad"/></p>
+                        <p>Provincia: <span t-field="autoescuela.provincia"/></p>
+                        <p>Contacto: <span t-field="autoescuela.contacto"/></p>
+
+                        <h5>Exámenes</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Código</th><th>Fecha</th><th>Precio</th><th>Moneda</th>
+                                    <th>Clases</th><th>Carnet</th><th>Aprobado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="autoescuela.examen_ids" t-as="examen">
+                                    <td><span t-field="examen.name"/></td>
+                                    <td><span t-field="examen.fecha"/></td>
+                                    <td><span t-field="examen.precio"/></td>
+                                    <td><span t-field="examen.moneda_id.name"/></td>
+                                    <td><span t-field="examen.clases"/></td>
+                                    <td><span t-field="examen.carnet"/></td>
+                                    <td><t t-if="examen.aprobado">Sí</t><t t-else="">No</t></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h5>Profesores asignados</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th><th>DNI</th><th>Coche</th><th>Matrícula</th>
+                                    <th>Incorporación</th><th>Antigüedad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="autoescuela.profesor_ids" t-as="profesor">
+                                    <td><span t-field="profesor.name"/></td>
+                                    <td><span t-field="profesor.dni"/></td>
+                                    <td><span t-field="profesor.coche"/></td>
+                                    <td><span t-field="profesor.matricula"/></td>
+                                    <td><span t-field="profesor.incorporacion"/></td>
+                                    <td><span t-field="profesor.antiguedad"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h5>Alumnos matriculados</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th><th>DNI</th><th>Profesor</th>
+                                    <th>Domicilio</th><th>Matrícula</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="autoescuela.alumno_ids" t-as="alumno">
+                                    <td><span t-field="alumno.name"/></td>
+                                    <td><span t-field="alumno.dni"/></td>
+                                    <td><span t-field="alumno.profesor_id.name"/></td>
+                                    <td><span t-field="alumno.domicilio"/></td>
+                                    <td><span t-field="alumno.matricula"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

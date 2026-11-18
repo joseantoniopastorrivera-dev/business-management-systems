@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- noupdate="1": al actualizar el módulo no se reinicia el contador -->
+    <data noupdate="1">
+        <!-- Secuencia del código de examen: SGE00001, SGE00002...
+             Tras instalar el módulo se ve en Ajustes > Técnico > Secuencias -->
+        <record id="ir_sequence_autoescuela_examen" model="ir.sequence">
+            <field name="name">Serial Numbers</field>
+            <field name="code">autoescuela.examen</field>
+            <field name="prefix">SGE</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

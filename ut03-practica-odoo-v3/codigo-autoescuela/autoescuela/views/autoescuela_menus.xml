@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú raíz con icono (para que el icono cambie hay que desinstalar y volver a instalar) -->
+    <menuitem id="autoescuela_menu_root"
+              name="Autoescuela"
+              web_icon="autoescuela,static/description/icon.png"
+              groups="group_autoescuela_gestor"
+              sequence="10"/>
+
+    <!-- Submenús: uno por modelo, cada uno abre su acción de ventana -->
+    <menuitem id="autoescuela_autoescuela_menu"
+              name="Autoescuelas"
+              parent="autoescuela_menu_root"
+              action="autoescuela_autoescuela_action"
+              sequence="10"/>
+
+    <menuitem id="autoescuela_profesor_menu"
+              name="Profesores"
+              parent="autoescuela_menu_root"
+              action="autoescuela_profesor_action"
+              sequence="20"/>
+
+    <menuitem id="autoescuela_alumno_menu"
+              name="Alumnos"
+              parent="autoescuela_menu_root"
+              action="autoescuela_alumno_action"
+              sequence="30"/>
+
+    <menuitem id="autoescuela_examen_menu"
+              name="Exámenes por Alumno"
+              parent="autoescuela_menu_root"
+              action="autoescuela_examen_action"
+              sequence="40"/>
+</odoo>

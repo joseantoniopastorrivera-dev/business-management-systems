@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Acción del informe: menú ⚙ > Imprimir del formulario de examen -->
+    <record id="autoescuela_examen_report_action" model="ir.actions.report">
+        <field name="name">Informe de examen</field>
+        <field name="model">autoescuela.examen</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">autoescuela.autoescuela_examen_report_template</field>
+        <field name="report_file">autoescuela.autoescuela_examen_report_template</field>
+        <field name="print_report_name">'Informe de examen - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_autoescuela_examen"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="autoescuela_examen_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="examen">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Examen <span t-field="examen.name"/></h2>
+                        <p>Fecha: <span t-field="examen.fecha"/></p>
+                        <p>Alumno: <span t-field="examen.alumno_id.name"/></p>
+                        <p>Precio: <span t-field="examen.precio"/></p>
+                        <p>Moneda: <span t-field="examen.moneda_id.name"/></p>
+                        <p>Número de clases: <span t-field="examen.clases"/></p>
+                        <p>Tipo de carnet: <span t-field="examen.carnet"/></p>
+                        <p>Aprobado: <t t-if="examen.aprobado">Sí</t><t t-else="">No</t></p>
+                        <h5>Autoescuelas asociadas</h5>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th><th>Domicilio</th><th>Localidad</th>
+                                    <th>Provincia</th><th>Contacto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="examen.autoescuela_ids" t-as="autoescuela">
+                                    <td><span t-field="autoescuela.name"/></td>
+                                    <td><span t-field="autoescuela.domicilio"/></td>
+                                    <td><span t-field="autoescuela.localidad"/></td>
+                                    <td><span t-field="autoescuela.provincia"/></td>
+                                    <td><span t-field="autoescuela.contacto"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
