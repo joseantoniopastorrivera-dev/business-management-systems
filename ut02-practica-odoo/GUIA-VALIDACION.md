@@ -157,3 +157,21 @@ grep -A40 "^Depends" /home/odoo/odoo/debian/control | head -40
 | Archivo de configuración | /home/odoo/conf/odoo-server.conf |
 | Servicio | /etc/systemd/system/odoo.service |
 | PostgreSQL | /etc/postgresql/16/main/postgresql.conf y pg_hba.conf |
+
+## 4. Ampliación (capítulo 11 de la memoria ampliada)
+
+Desde la ampliación, Odoo arranca solo, `ufw` está activo (22, 8069, 5432, 80) y Nginx sirve Odoo en el puerto 80.
+
+```bash
+systemctl is-enabled odoo; systemctl is-active odoo nginx postgresql@16-main
+sudo ufw status numbered
+pg_lsclusters
+cat /proc/cmdline                         # modprobe.blacklist=... (arreglo de la I-15)
+cat /etc/default/grub.d/99-sin-raid6.cfg
+cat /etc/nginx/sites-available/odoo
+ls -lh ~/copias-practica1                 # copia de test hecha con pg_dump -Fc
+sudo vgs; sudo lvs; df -h /               # disco ampliado a 28 GB
+```
+
+- Odoo por Nginx (sin puerto): `http://<IP>/web/login?db=test`
+- Guía de defensa de la ampliación: `guia-defensa-ampliacion-practica1-odoo.md`
