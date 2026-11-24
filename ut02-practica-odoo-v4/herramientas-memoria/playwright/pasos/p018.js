@@ -1,0 +1,22 @@
+const L = require('./lib');
+module.exports = async ({ page, shot, log, call, BASE }) => {
+  await page.goto(BASE + '/web#action=stock.action_warehouse_form&cids=2-1', { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.o_list_view'); await L.esperar(page, 2000);
+  await L.nuevo(page);
+  await shot('almacen-nuevo-formulario-vacio');
+  await L.campo(page, 'name', 'Bodega de vinos'); await L.campo(page, 'code', 'BOD');
+  if (await page.locator('.o_field_widget[name=company_id] input').count()) await L.m2o(page, 'company_id', 'La taberna', null, 'La taberna de Moe');
+  await L.campo(page, 'partner_id', '').catch(() => {});
+  await shot('almacen-bodega-de-vinos-datos');
+  await L.guardar(page); await shot('almacen-bodega-de-vinos-guardado');
+  await page.locator('.o_breadcrumb a').first().click(); await L.esperar(page);
+  await page.locator('.o_data_row', { hasText: 'Bar de la taberna' }).first().click(); await page.waitForSelector('.o_form_view'); await L.esperar(page);
+  await page.locator('.o_notebook .nav-link', { hasText: 'Configuración' }).first().click(); await page.waitForTimeout(800);
+  await shot('almacen-bar-pestana-configuracion');
+  log((await page.locator('.o_notebook .tab-pane.active').innerText()).slice(0, 1500));
+  await L.m2o(page, 'resupply_wh_ids', 'Bodega', null, 'Bodega de vinos');
+  await shot('almacen-bar-reabastecer-desde-bodega-de-vinos');
+  await L.guardar(page); await shot('almacen-bar-guardado-con-reabastecimiento');
+  log(JSON.stringify(await call('stock.route', 'search_read', [[['name', 'ilike', 'Bodega']]], { fields: ['name', 'company_id', 'rule_ids'] })));
+  log(JSON.stringify(await call('stock.warehouse', 'search_read', [[]], { fields: ['name', 'code', 'company_id'] })));
+};
