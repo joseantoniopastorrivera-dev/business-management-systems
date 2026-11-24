@@ -44,6 +44,7 @@ INCIDENCIAS = [
     ('I-22', 'Empleados duplicados por un campo que venía relleno', '17.5', 'Resuelta'),
     ('I-23', 'Los ajustes de Asistencias no se guardaban: falta «Empezar desde»', '17.5', 'Resuelta'),
     ('I-24', 'La URL secreta del quiosco aparece en las capturas', '17.5', 'Resuelta'),
+    ('I-25', 'El control nocturno no respeta el descanso de 12 h entre jornadas', '17.5', 'Analizada'),
 ]
 
 INCIDENCIAS_DETALLE = [
@@ -64,13 +65,14 @@ INCIDENCIAS_DETALLE = [
     ('I-15', 'SMS de pago', 'Al validar la entrega Odoo propone avisar por SMS (créditos IAP). Se pulsa «Deshabilitar SMS».'),
     ('I-16', 'Caducidad recalculada', 'La taberna crea su propio lote y calcula la caducidad desde su recepción (dos días más). Se pone la del fabricante en cada lote y Odoo recalcula alerta y retirada.'),
     ('I-17', 'Copia desde /home/alumno', 'Con sudo -u odoo el script sigue en /home/alumno, donde odoo no entra: falla el find de la rotación y set -e corta. Se lanza desde /tmp.'),
-    ('I-18', 'Conciliación bancaria', 'El cobro queda en 431200 «Efectos comerciales en gestión de cobro» hasta conciliarlo con el extracto; el widget de conciliación bancaria es de Enterprise. La factura sí queda conciliada con su cobro en la 430.'),
+    ('I-18', 'Conciliación bancaria', 'El cobro queda en 431200 «Efectos comerciales en gestión de cobro» hasta conciliarlo con el extracto; el widget de conciliación bancaria es de Enterprise. La factura sí queda conciliada con su cobro en la 430. En el PGC la 4312 está pensada para letras y efectos enviados al banco; Odoo la usa como cuenta puente de los cobros pendientes de conciliar.'),
     ('I-19', 'Empleado técnico', 'Archivar al empleado «Administrator» pide un motivo de salida (despido, jubilación…). No procede: se deja como perfil técnico.'),
     ('I-20', 'Tipo de ausencia', 'Desde «Nueva ausencia» con varios empleados no hay contexto de empleado y no aparece «Ausencia pagada». Se pide desde la ficha del empleado → Ausencias.'),
     ('I-21', 'Sesión cerrada', 'La URL del quiosco es para un dispositivo aparte: al abrirla en el mismo navegador se cierra la sesión del administrador, que vuelve a entrar.'),
     ('I-22', 'Empleados duplicados', 'El campo Empleado del fichaje venía con «Administrator» y el nombre se escribió detrás: se crearon cuatro empleados «AdministratorX». Se borran con sus fichajes y se repite vaciando el campo.'),
     ('I-23', 'Ajustes sin guardar', 'Al activar el recuento de horas extra el campo «Empezar desde» es obligatorio; vacío, Odoo deja los ajustes en «Cambios no guardados» sin avisar en el resto de la página. Con fecha 01/11/2026 se guardan: modo selección manual y horas extra (Javier +1,5 h el 23/11).'),
-    ('I-24', 'URL del quiosco publicada', 'Cualquiera con el enlace del quiosco puede fichar. Como aparece en dos capturas, antes de publicar el trabajo se pulsa «Generar una nueva URL para el modo de quiosco»: la antigua deja de funcionar y la nueva se oculta en la captura.'),
+    ('I-24', 'URL del quiosco publicada', 'Cualquiera con el enlace del quiosco puede fichar. Como el principio de la URL aparece en tres capturas de los ajustes, antes de publicar el trabajo se pulsa «Generar una nueva URL para el modo de quiosco»: la antigua deja de funcionar y la nueva se oculta en la captura.'),
+    ('I-25', 'Descanso entre jornadas', 'Daniel sale el 23/11 a las 17:00 y vuelve a las 02:45: 9 h 45 min, menos de las 12 h del art. 34.3 ET. Odoo no lo valida. La reducción a 7 h solo cabe en los cambios de turno y con compensación (art. 19 del RD 1561/1995). Solución real: un turno de noche o una alarma remota de temperatura en los fermentadores, y que su jornada del 24 no empiece antes de las 15:30.'),
 ]
 
 # Capturas que entran en la versión corta (las demás solo en la completa)
@@ -104,6 +106,7 @@ C = [
         ['7', 'Trazabilidad y simulación de retirada de un lote', 'Informe de trazabilidad', '16'],
         ['8', 'La plantilla de la fábrica: contratos, ausencias, fichajes y contratación', 'Empleados, Contratos, Ausencias, Asistencias, Reclutamiento', '17'],
     ]),
+    ('p', '**Tiempos comprimidos.** Para recorrer el flujo completo en dos sesiones de trabajo, la simulación transcurre entre el 23 y el 26 de noviembre de 2026: las cuatro cervezas se fabrican, se entregan y se facturan en tres días, aunque en la realidad la IPA y la Stout necesitan 14 días de fermentación, la Lager 35 y la Trigo 10. Por eso los lotes llevan la fecha del 23/11 y la caducidad se cuenta desde ese día, y la candidatura de Sara llega a «Contrato firmado» antes de la entrevista anotada para el 26/11. La planificación de Odoo sí calcula las duraciones reales (apartado 11).'),
     ('h2', '1.4. Entorno de trabajo'),
     ('tab', ['Equipo', 'Papel', 'Acceso'], [
         ['VM Ubuntu Server 24 LTS', 'Odoo 17 nativo + PostgreSQL 16 (prácticas 1 y 2)', '192.168.1.132:8069 (y Nginx en el 80)'],
@@ -157,14 +160,15 @@ C = [
     ('h1', '6. Categorías de producto y valoración contable'),
     ('h2', '6.1. Cuentas del Plan General Contable'),
     ('p', 'Cada categoría define cómo se valora el stock: **coste promedio (AVCO)** y **valoración automatizada**. Cada movimiento de inventario genera su asiento. **Incidencia I-06:** la valoración automatizada exige tres cuentas de stock y las elegí según el PGC (modelo continental):'),
-    ('tab', ['Categoría', 'Valoración', 'Entrada', 'Salida', 'Ingresos', 'Salida forzada'], [
+    ('tab', ['Categoría', 'Valoración', 'Entrada', 'Salida', 'Ingresos', 'Estrategia de retirada forzada'], [
         ['Materias primas (Maltas, Lúpulos, Levaduras)', '310000', '601000', '611000', '700000', 'FIFO / FEFO'],
         ['Envases', '327000', '602000', '612000', '704000', 'FIFO'],
         ['Cerveza en barril', '350000', '712000', '712000', '701000', 'FEFO'],
         ['Subproductos (bagazo)', '360000', '713000', '713000', '703000', 'FIFO'],
         ['Vinos (taberna)', 'Manual', '-', '-', '-', 'FIFO'],
     ]),
-    ('p', 'Con esta configuración la compra se carga en la 601 y la recepción la pasa a existencias (310); el consumo en fabricación va a la 611; el producto terminado entra en la 350 con abono a la 712, y la venta lo saca con cargo a la 712. **FEFO** (primero en caducar, primero en salir) se aplica a lúpulos, levaduras y barriles.'),
+    ('p', 'Con esta configuración la compra se carga en la 601 y la recepción la pasa a existencias (310); el consumo en fabricación va a la 611; el producto terminado entra en la 350 con abono a la 712, y la venta lo saca con cargo a la 712. **FEFO** (primero en caducar, primero en salir) se aplica a lúpulos, levaduras y barriles. Las maltas también tienen caducidad, pero las dejé en **FIFO** a propósito: caducan a los 365 días y se consumen en pocas semanas, así que el primer saco que entra es siempre el primero que caduca y las dos estrategias eligen el mismo lote.'),
+    ('p', '**Cómo leer la 601/611 y la 712 en esta configuración.** Odoo usa la cuenta de entrada de la categoría como puente entre la recepción y la factura: la recepción carga la 310 y abona la 601, y la factura del proveedor carga la 601 contra la 400. Por eso la **601 queda a cero** y todo el consumo aparece en la **611**. El resultado es el mismo, pero el reparto no sigue el modelo del PGC, donde la 601 recoge las compras y la 611 solo la variación de existencias (iniciales menos finales) al cierre. Con la **712** pasa algo parecido: al terminar una OF, Odoo la abona por el coste completo del lote (materiales y también cocción, fermentación y embarrilado), pero en Community nadie carga esos costes de transformación como gasto, porque no hay nóminas (64x) ni facturas de suministros (628). La parte de materiales se compensa con la 611; la de transformación queda como un ingreso sin su gasto. La revalorización del apartado 11.4 reduce esa diferencia, pero no la elimina; se cerraría con asientos de personal y suministros.'),
     ('figs', 91, 108),
 
     ('h1', '7. Proveedores y productos'),
@@ -222,10 +226,10 @@ C = [
     ('p', '**Incidencia I-10.** El administrador y los horarios estaban en Europe/Berlin; los pasé a Europe/Madrid.'),
     ('figs', 253, 260),
     ('h2', '11.2. Primer intento de producción'),
-    ('p', 'En cada orden asigné el lote del producto terminado (IPA-261123-01: cerveza y fecha de cocción) y pulsé «Producir todo». **Incidencia I-11:** Odoo pide indicar y consumir los lotes de los componentes; hay que marcar «La cantidad consumida» en cada línea con lote.'),
+    ('p', 'En cada orden asigné el lote del producto terminado (IPA-261123-01: cerveza y fecha de cocción) y pulsé «Producir todo». **Incidencia I-11:** Odoo pide indicar y consumir los lotes de los componentes; hay que marcar «La cantidad consumida» en cada línea con lote. En este primer intento las cuatro órdenes se quedaron **Confirmadas**, con 0 de 10 barriles producidos y los componentes sin consumir: se terminaron después, en el apartado 11.3.'),
     ('figs', 261, 283),
     ('h2', '11.3. Capacidad de los centros'),
-    ('p', '**Incidencia I-12.** La capacidad de un centro son **unidades de producto** a la vez, no lotes. Con capacidad 1 la sala de cocción contaba 10 ciclos de macerado. La puse en 10 barriles para la cocción y el embarrilado, y en 40 para los fermentadores (cuatro tanques de diez barriles). Después replanifiqué, marqué los componentes consumidos (cada uno con su lote reservado por FEFO/FIFO) y terminé las cuatro órdenes: 10 barriles de cada cerveza en la Cámara fría y 305 kg de bagazo.'),
+    ('p', '**Incidencia I-12.** La capacidad de un centro son **unidades de producto** a la vez, no lotes. Con capacidad 1 la sala de cocción contaba 10 ciclos de macerado. La puse en 10 barriles para la cocción y el embarrilado, y en 40 para los fermentadores (cuatro tanques de diez barriles). Después volví a planificar las órdenes (cambian las fechas, pero las órdenes de trabajo ya creadas conservan la duración calculada con la capacidad antigua: es el origen de la I-13), marqué los componentes consumidos (cada uno con su lote reservado por FEFO/FIFO) y terminé las cuatro órdenes: 10 barriles de cada cerveza en la Cámara fría y 305 kg de bagazo.'),
     ('figs', 284, 301),
     ('h2', '11.4. Corrección del coste: revalorización'),
     ('p', '**Incidencia I-13.** Las órdenes de trabajo ya existentes no recalculan su duración al cambiar la capacidad, y la IPA salió a **382 € por barril**. Intenté «Desmontar» la orden, pero no encuentra los barriles porque están en una ubicación hija (**I-14**), y confirmarlo descuadraría el inventario.'),
@@ -277,7 +281,7 @@ C = [
     ('figs', 397, 411),
     ('h2', '15.4. Asientos, conciliación y límites de Community'),
     ('p', 'Todo el flujo está en la contabilidad. Los apuntes agrupados por cuenta cuadran (Debe = Haber = 50.817,14 €), y en la 430 la factura y su cobro tienen el **mismo número de conciliación**.'),
-    ('p', '**I-18 (limitación).** El cobro queda en la 431200 «Efectos comerciales en gestión de cobro» hasta conciliarlo con el extracto del banco, y el widget de conciliación bancaria es de Enterprise. En Community se podría configurar el diario de Banco para que los pagos vayan directamente a la 572. Tampoco hay balance ni cuenta de pérdidas y ganancias: solo «Análisis de facturas».'),
+    ('p', '**I-18 (limitación).** El cobro queda en la 431200 «Efectos comerciales en gestión de cobro» hasta conciliarlo con el extracto del banco. En el PGC esa cuenta está pensada para letras y otros efectos enviados al banco; Odoo la usa como cuenta puente de los cobros pendientes de conciliar. El widget de conciliación bancaria es de Enterprise. En Community se podría configurar el diario de Banco para que los pagos vayan directamente a la 572. Tampoco hay balance ni cuenta de pérdidas y ganancias: solo «Análisis de facturas».'),
     ('figs', 421, 425),
 
     ('h1', '16. Trazabilidad, retirada de lote y desechos'),
@@ -294,16 +298,17 @@ C = [
     ('p', 'Plantilla realista de una microcervecería: gerente, maestro cervecero, operaria de producción, responsable de logística y reparto, administrativa contable y comercial, en cuatro departamentos con responsable y organigrama. **I-19:** archivar al empleado técnico «Administrator» pide un motivo de salida tipo despido, así que lo dejé como perfil técnico del administrador del sistema.'),
     ('figs', 447, 467),
     ('h2', '17.3. Contratos y festivos'),
-    ('p', 'Contratos indefinidos «En curso», con salario bruto mensual y jornada de 40 h (art. 34 del Estatuto de los Trabajadores). No hay un convenio estatal de la cerveza (solo de empresa: Mahou, Heineken…) y no he citado uno inventado. Cargué los **14 festivos de 2026** de Alcalá de Henares: nacionales, el 2 de mayo de la Comunidad y los locales del 6 de agosto y el 9 de octubre.'),
-    ('tab', ['Empleado', 'Puesto', 'Alta', 'Salario bruto/mes', 'Vacaciones 2026'], [
+    ('p', 'Contratos indefinidos «En curso», con salario bruto mensual en **14 pagas** (12 mensualidades y 2 pagas extraordinarias, art. 31 del Estatuto de los Trabajadores) y jornada de 40 h semanales (art. 34 ET): de lunes a viernes, de 8:00 a 17:00 con una hora para comer, el mismo horario de los fichajes del apartado 17.5. No hay un convenio estatal de la cerveza (solo de empresa: Mahou, Heineken…) y no he citado uno inventado. Cargué los **14 festivos de 2026** de Alcalá de Henares: nacionales, el 2 de mayo de la Comunidad y los locales del 6 de agosto y el 9 de octubre.'),
+    ('tab', ['Empleado', 'Puesto', 'Alta', 'Salario bruto/mes (14 pagas)', 'Vacaciones 2026'], [
         ['Lucía Herrero Campos', 'Gerente', '01/02/2026', '3.200 €', '20 días'],
         ['Daniel Ortega Ruiz', 'Maestro cervecero', '01/03/2026', '2.600 €', '18 días'],
         ['Elena Cabrera Ramos', 'Administrativa contable', '01/03/2026', '1.750 €', '18 días'],
         ['Marta Sanz Delgado', 'Operaria de producción', '01/04/2026', '1.650 €', '17 días'],
         ['Javier Navarro Gil', 'Logística y reparto', '01/04/2026', '1.800 €', '17 días'],
         ['Pablo Fuentes Serrano', 'Comercial', '01/06/2026', '1.900 €', '13 días'],
-        ['Sara Vidal Romero', 'Operaria de producción (temporal 6 meses)', '01/12/2026', '1.650 €', '-'],
+        ['Sara Vidal Romero', 'Operaria de producción (temporal 6 meses)', '01/12/2026', '1.650 €', '2 días (al empezar)'],
     ]),
+    ('p', 'Sara entra el 1 de diciembre, así que en 2026 le corresponden 22 × 1/12 ≈ 1,8 días, redondeados a **2**. No se los asigné todavía porque su contrato está en estado «Nuevo» hasta que empiece; se asignan ese día con la misma regla de prorrateo.'),
     ('figs', 468, 480),
     ('h2', '17.4. Ausencias'),
     ('p', 'Asigné 22 días laborables de vacaciones (30 naturales, art. 38 ET) a toda la empresa y los **prorrateé** por fecha de alta: 22 × meses trabajados / 12. Marta pidió del 21 al 23 de diciembre, con **doble aprobación** (responsable y RR. HH.), y Javier tuvo una baja médica de un día. **I-20:** el tipo «Ausencia pagada» no aparece al pedir la ausencia con varios empleados; desde la ficha del empleado sí.'),
@@ -311,11 +316,13 @@ C = [
     ('h2', '17.5. Asistencias'),
     ('p', 'Modo quiosco con selección manual y recuento de horas extra. Daniel fichó a las 02:45 para el control nocturno de los fermentadores. Los PIN de los empleados están en sus fichas, pero dejé el quiosco sin PIN para que no los teclee el agente de IA. **I-21:** el quiosco cierra la sesión del administrador si se abre en el mismo navegador. **I-22:** al registrar los fichajes del lunes, el campo Empleado venía relleno y se crearon empleados duplicados, que borré.'),
     ('p', '**I-23.** Los ajustes del quiosco no se habían guardado: al activar el recuento de horas extra, el campo **«Empezar desde»** es obligatorio y Odoo dejaba la página en «Cambios no guardados». Con la fecha 01/11/2026 se guardan, y Javier aparece con **+1,5 h** extra el lunes (9,5 h frente a 8). Daniel sale en negativo el día 24 porque su jornada de ese día aún no ha terminado (solo ha hecho el control nocturno).'),
-    ('p', '**Mejora de seguridad antes de publicar (I-24).** La URL del quiosco funciona como una llave: cualquiera que la tenga puede fichar. Como aparece en dos capturas, antes de subir el trabajo la regeneré con «Generar una nueva URL para el modo de quiosco». La antigua deja de funcionar, y en la captura de la nueva la URL está desenfocada.'),
+    ('p', '**Mejora de seguridad antes de publicar (I-24).** La URL del quiosco funciona como una llave: cualquiera que la tenga puede fichar. Como el principio de la URL aparece en tres capturas de los ajustes, antes de subir el trabajo la regeneré con «Generar una nueva URL para el modo de quiosco». La antigua deja de funcionar, y en la captura de la nueva la URL está desenfocada.'),
+    ('p', '**I-25 (detectada al revisar la memoria).** El fichaje nocturno de Daniel no respeta el **descanso mínimo de 12 horas entre jornadas** (art. 34.3 ET): sale el lunes 23 a las 17:00 y vuelve a las 02:45, solo 9 h 45 min después. Odoo registra el fichaje sin avisar, porque Asistencias no valida los descansos. La ley solo permite reducir ese descanso hasta 7 horas en los cambios de turno, compensando la diferencia en los días siguientes (art. 19 del RD 1561/1995, de jornadas especiales), y no es el caso. Además son horas nocturnas (de 22:00 a 6:00, art. 36 ET), que se pagan con un plus salvo que el salario ya lo tenga en cuenta. En una cervecería real el control de los fermentadores por la noche lo haría un turno de noche o se resolvería con una alarma remota de temperatura; si lo hiciera Daniel, su jornada del día 24 no podría empezar hasta las 15:30.'),
     ('figs', 497, 504),
     ('figs', 520, 526),
     ('h2', '17.6. Reclutamiento: contratación de Sara Vidal'),
     ('p', 'Para reforzar la sala de cocción se abrió una vacante de operario. Sara Vidal Romero (FP de Elaboración de Productos Alimenticios, dos años en una bodega) pasó por todas las etapas, con nota de la entrevista con el maestro cervecero, hasta «Contrato firmado». Con «Crear empleado» pasa a la plantilla y tiene un **contrato temporal de 6 meses** que empieza el 1 de diciembre.'),
+    ('p', '**Causa del contrato temporal.** Desde la reforma laboral de 2021 (RDL 32/2021) solo hay contrato temporal por **circunstancias de la producción** o por **sustitución** de otra persona (art. 15 ET), y la causa tiene que constar en el contrato. El de Sara es por circunstancias de la producción (art. 15.2 ET): un **incremento ocasional e imprevisible** de la actividad al empezar a abastecer a la taberna, sin saber aún si ese volumen se mantendrá. Su duración máxima es de 6 meses (ampliable a un año por convenio sectorial), justo lo que dura el de Sara. Si fuera solo para la campaña de Navidad, que es previsible, sería la otra modalidad del mismo artículo: como máximo 90 días al año.'),
     ('figs', 505, 519),
 
     ('h1', '18. Límites de Community y decisiones de diseño'),
@@ -327,6 +334,7 @@ C = [
         ['Nóminas', 'Payroll', 'Contratos con salario bruto (17.3)'],
         ['Avisos SMS', 'IAP de pago (también en Community)', 'Deshabilitados (13.2)'],
     ]),
+    ('p', '**Módulos de la comunidad (OCA).** Estas carencias son del núcleo de Community, no de Odoo en general: la Odoo Community Association publica para la versión 17 módulos libres que las cubren, como `purchase_sale_inter_company` (pedidos entre compañías), `account_reconcile_oca` (conciliación bancaria) y `account_financial_report` o `mis_builder` (balance y PyG). No los instalé para no salir del núcleo estándar ni cambiar la configuración del servidor, porque habría que añadir una ruta de *addons* propia.'),
 
     ('h1', '19. Incidencias'),
     ('incid',),
