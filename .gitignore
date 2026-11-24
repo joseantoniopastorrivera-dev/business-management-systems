@@ -14,3 +14,4 @@ ut03-practica-odoo-v3/al-llegar-a-casa.md
 node_modules/
 ut02-practica-odoo-v4/herramientas-memoria/*.log
 ut02-practica-odoo-v4/herramientas-memoria/playwright/pasos/*.png
+ut02-practica-odoo-v4/herramientas-memoria/playwright/pasos/_sondas/
