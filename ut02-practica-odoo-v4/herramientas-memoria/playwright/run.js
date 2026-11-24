@@ -1,5 +1,7 @@
 // Uso: node run.js paso.js  — se conecta al Edge con --remote-debugging-port=9222 y ejecuta el paso.
 // El paso exporta: async ({ page, ctx, shot, log, call, BASE }) => {}
+// shot(desc, { num }) rehace la captura con ese número (borra la anterior) en vez de ponerla al final;
+// shot(desc, { clip: {x, y, width, height} }) captura solo esa zona de la pantalla.
 const { chromium } = require('playwright-core');
 const fs = require('fs');
 const path = require('path');
@@ -23,8 +25,12 @@ const BASE = CFG.odoo_url;
   const shot = async (desc, opts = {}) => {
     const pg = opts.page || page;
     await pg.waitForTimeout(opts.wait ?? 800);
-    const name = `${String(next()).padStart(3, '0')}-${desc}.png`;
-    await pg.screenshot({ path: path.join(OUT, name), fullPage: !!opts.full });
+    const num = opts.num ?? next();
+    const prefijo = String(num).padStart(3, '0') + '-';
+    // al rehacer una captura se borra la anterior con el mismo número (aunque cambie la descripción)
+    if (opts.num) fs.readdirSync(OUT).filter(f => f.startsWith(prefijo)).forEach(f => fs.unlinkSync(path.join(OUT, f)));
+    const name = `${prefijo}${desc}.png`;
+    await pg.screenshot({ path: path.join(OUT, name), fullPage: !!opts.full, clip: opts.clip });
     console.log('SHOT ' + name);
     return name;
   };
