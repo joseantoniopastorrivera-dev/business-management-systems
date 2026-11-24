@@ -1,0 +1,44 @@
+// Uso: node run.js paso.js  — se conecta al Edge con --remote-debugging-port=9222 y ejecuta el paso.
+// El paso exporta: async ({ page, ctx, shot, log, call, BASE }) => {}
+const { chromium } = require('playwright-core');
+const fs = require('fs');
+const path = require('path');
+
+const OUT = 'C:/dev/Sistemas-Gestion-Empresarial/ut02-practica-odoo-v4/capturas';
+const BASE = 'http://192.168.1.132:8069';
+
+(async () => {
+  fs.mkdirSync(OUT, { recursive: true });
+  const browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
+  const ctx = browser.contexts()[0];
+  let page = ctx.pages().find(p => p.url().startsWith(BASE)) || ctx.pages()[0];
+  await page.setViewportSize({ width: 1440, height: 900 }).catch(() => {});
+  const next = () => {
+    const nums = fs.readdirSync(OUT).map(f => parseInt(f, 10)).filter(n => !isNaN(n));
+    return (nums.length ? Math.max(...nums) : 0) + 1;
+  };
+  const shot = async (desc, opts = {}) => {
+    const pg = opts.page || page;
+    await pg.waitForTimeout(opts.wait ?? 800);
+    const name = `${String(next()).padStart(3, '0')}-${desc}.png`;
+    await pg.screenshot({ path: path.join(OUT, name), fullPage: !!opts.full });
+    console.log('SHOT ' + name);
+    return name;
+  };
+  const log = (...a) => console.log(...a);
+  // llamada a la API de Odoo con la sesión del navegador (para comprobar datos)
+  const call = (model, method, args, kwargs = {}) => page.evaluate(async ([model, method, args, kwargs]) => {
+    const r = await fetch('/web/dataset/call_kw', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', method: 'call', params: { model, method, args, kwargs } }) });
+    const j = await r.json(); return j.error ? 'ERROR ' + j.error.data.message : j.result;
+  }, [model, method, args, kwargs]);
+  const step = require(path.resolve(process.argv[2]));
+  try {
+    await step({ page, ctx, shot, log, call, BASE });
+    console.log('URL=' + page.url());
+    console.log('STEP_OK');
+  } catch (e) {
+    console.log('STEP_ERROR ' + e.message.split('\n')[0]);
+    await page.screenshot({ path: path.join(path.dirname(path.resolve(process.argv[2])), 'error.png') }).catch(() => {});
+  }
+  process.exit(0); // sin browser.close(), para no cerrar el Edge
+})();
