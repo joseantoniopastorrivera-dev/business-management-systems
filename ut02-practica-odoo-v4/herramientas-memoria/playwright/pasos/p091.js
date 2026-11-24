@@ -1,0 +1,20 @@
+const L = require('./lib');
+module.exports = async ({ page, shot, log, call, BASE }) => {
+  const k0 = await call('res.company', 'read', [[1], ['attendance_kiosk_mode', 'hr_attendance_overtime', 'overtime_start_date', 'attendance_kiosk_key']]);
+  log('antes=' + JSON.stringify(k0).replace(/"attendance_kiosk_key":"[^"]+"/, '"key":"(oculta)"'));
+  await page.locator('.o_form_button_cancel:visible, .o_control_panel button:has-text("Descartar")').first().click().catch(() => {}); await page.waitForTimeout(800);
+  await L.abrir(page, BASE, 'hr_attendance.action_hr_attendance_settings', '1', '.o_setting_container');
+  await page.locator('.o_field_widget[name=attendance_kiosk_mode] select').selectOption('"manual"'); await page.waitForTimeout(600);
+  await L.check(page, 'hr_attendance_overtime', true); await page.waitForTimeout(800);
+  log('campos=' + JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.o_setting_container .o_field_widget[name]')].map(e => e.getAttribute('name')).filter(n => /overtime/.test(n)))));
+  await page.locator('.o_field_widget[name=hr_attendance_overtime]').scrollIntoViewIfNeeded(); await page.waitForTimeout(500);
+  await page.evaluate(() => { const e = document.querySelector('.o_field_widget[name=attendance_kiosk_url]'); if (e) e.style.filter = 'blur(7px)'; });
+  await page.mouse.move(1350, 860); await shot('ajustes-asistencias-seleccion-manual-y-horas-extra-antes-de-guardar');
+  await page.locator('.o_control_panel button', { hasText: 'Guardar' }).first().click(); await L.esperarRecarga2(page);
+  await page.locator('.o_field_widget[name=hr_attendance_overtime]').scrollIntoViewIfNeeded(); await page.waitForTimeout(800);
+  await page.evaluate(() => { const e = document.querySelector('.o_field_widget[name=attendance_kiosk_url]'); if (e) e.style.filter = 'blur(7px)'; });
+  await page.mouse.move(1350, 860); await shot('ajustes-asistencias-guardados-de-verdad');
+  const k1 = await call('res.company', 'read', [[1], ['attendance_kiosk_mode', 'hr_attendance_overtime', 'overtime_start_date', 'attendance_kiosk_key']]);
+  log('despues=' + JSON.stringify(k1).replace(/"attendance_kiosk_key":"[^"]+"/, '"key":"(oculta)"') + ' keyCambiada=' + (k0[0].attendance_kiosk_key !== 'a67cf414-da13-4165-ae4b-7a489f788a80'));
+  log(JSON.stringify(await call('hr.attendance', 'search_read', [[]], { fields: ['employee_id', 'worked_hours', 'overtime_hours'] })));
+};

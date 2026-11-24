@@ -1,0 +1,1 @@
+module.exports = async ({ call, log }) => { log(JSON.stringify(await call('product.category', 'search_read', [[]], { fields: ['complete_name', 'property_cost_method', 'property_valuation', 'removal_strategy_id'] }))); };
