@@ -13,7 +13,7 @@ from docx.shared import Cm, Pt, RGBColor
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from contenido_v4 import PORTADA, VERSION, INCIDENCIAS, INCIDENCIAS_DETALLE, C, CORTA
+from contenido_v4 import PORTADA, VERSION, INCIDENCIAS, INCIDENCIAS_DETALLE, C, CORTA, QUITAR_COMPLETA
 from pies import pie as pie_auto
 from configuracion import ruta
 
@@ -28,19 +28,30 @@ else:
 AZUL = RGBColor(0x1F, 0x38, 0x64)
 
 capturas = {int(f[:3]): os.path.join(CAPT, f) for f in os.listdir(CAPT) if f[:3].isdigit() and f.endswith('.png')}
-# expandir los rangos de figuras y filtrar la versión corta
-C2 = []
-for e in C:
-    if e[0] == 'figs':
-        for n in range(e[1], e[2] + 1):
-            if MODO == 'completa' or n in CORTA:
-                C2.append(('fig', n, pie_auto(n)))
-    elif e[0] == 'pc':
-        if MODO == 'completa':
-            C2.append(('p', e[1]))
-    else:
-        C2.append(e)
-C = C2
+def entra(n, modo):
+    """¿La captura n entra en esta versión? La corta usa CORTA; la completa, todas menos las repetidas."""
+    return n in CORTA if modo == 'corta' else n not in QUITAR_COMPLETA
+
+
+def expandir(modo):
+    """Convierte los rangos ('figs', a, b) en figuras sueltas y quita los párrafos 'pc' en la corta."""
+    sal = []
+    for e in C:
+        if e[0] == 'figs':
+            sal += [('fig', n, pie_auto(n)) for n in range(e[1], e[2] + 1) if entra(n, modo)]
+        elif e[0] == 'pc':
+            if modo == 'completa':
+                sal.append(('p', e[1]))
+        else:
+            sal.append(e)
+    return sal
+
+
+# el texto de 1.4 cita cuántas figuras tiene la completa: se calcula, no se escribe a mano
+NFIG_COMPLETA = sum(1 for e in expandir('completa') if e[0] == 'fig')
+C = [(e[0], e[1].replace('{NFIG_COMPLETA}', str(NFIG_COMPLETA))) + tuple(e[2:]) if e[0] in ('p', 'pc') else e
+     for e in expandir(MODO)]
+
 
 doc = Document()
 sec = doc.sections[0]
@@ -205,6 +216,6 @@ doc.core_properties.author = 'José Antonio Pastor Rivera'
 doc.core_properties.title = 'UT02. Práctica integradora v4 - Cervecería artesana Springfield (' + MODO + ')'
 doc.save(SALIDA)
 
-faltan = sorted(set(capturas) - set(usadas)) if MODO == 'completa' else len(set(capturas) - set(usadas))
+faltan = sorted(set(capturas) - set(usadas) - QUITAR_COMPLETA) if MODO == 'completa' else len(set(capturas) - set(usadas))
 repes = sorted({n for n in usadas if usadas.count(n) > 1})
 print('figuras:', nfig, '| capturas sin usar:', faltan, '| repetidas:', repes)

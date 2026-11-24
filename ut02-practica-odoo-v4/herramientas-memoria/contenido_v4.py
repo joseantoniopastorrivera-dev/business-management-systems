@@ -76,13 +76,21 @@ INCIDENCIAS_DETALLE = [
 ]
 
 # Capturas que entran en la versión corta (las demás solo en la completa)
-CORTA = {1, 4, 6, 8, 27, 31, 33, 37, 39, 40, 42, 44, 51, 52, 55, 57, 63, 64, 69, 74, 78, 80, 84, 87, 93, 94, 102,
+CORTA = {1, 4, 6, 27, 31, 33, 37, 39, 40, 42, 44, 51, 52, 55, 57, 63, 64, 69, 74, 78, 80, 84, 87, 93, 94, 102,
          108, 111, 118, 119, 120, 121, 137, 147, 160, 164, 165, 166, 177, 182, 185, 187, 188, 189, 190, 212,
          214, 215, 216, 217, 218, 221, 225, 226, 227, 229, 236, 239, 240, 241, 243, 252, 255, 257, 258, 262,
-         265, 287, 288, 289, 290, 291, 292, 302, 303, 305, 309, 313, 315, 319, 321, 330, 332, 333, 335, 337,
+         265, 287, 288, 289, 290, 292, 302, 303, 305, 309, 313, 315, 319, 321, 330, 332, 333, 335, 337,
          344, 345, 346, 348, 349, 350, 352, 354, 356, 358, 360, 365, 369, 371, 372, 374, 375, 376, 395, 396,
          397, 399, 401, 411, 414, 417, 420, 422, 423, 424, 425, 446, 449, 453, 456, 464, 466, 467, 469, 471,
          477, 480, 482, 487, 488, 491, 494, 496, 498, 501, 502, 504, 507, 510, 513, 514, 517, 519, 521, 523, 525, 526}
+
+# Capturas que se quitan de la COMPLETA por repetidas o sin información nueva (auditoría, 2.3):
+#  - instalación de módulos: la secuencia entera solo para el primer módulo de cada bloque
+#    (Facturación 007-010, Empleados 426-429); de los demás, solo «resultado y botón activar»;
+#  - 288 es idéntica a la 267 (MD5) y 291 idéntica a la 302.
+QUITAR_COMPLETA = {11, 13, 14, 15, 17, 18, 19, 21, 22, 23, 25, 26,
+                   430, 432, 433, 434, 436, 437, 438, 440, 441, 442, 444, 445,
+                   288, 291}
 
 C = [
     ('h1', '1. Introducción'),
@@ -113,7 +121,7 @@ C = [
         ['Portátil Windows 11', 'Cliente: Microsoft Edge y terminal SSH', 'Red local'],
     ]),
     ('p', 'Base de datos de la práctica: **cerveceria**, nueva y sin datos de demostración. No se toca la base **taberna-moe** de la v2: la taberna de esta práctica es una segunda empresa dentro de «cerveceria». Antes de empezar hice una instantánea de la VM apagada («antes-v4-cerveceria-2026-11-23»).'),
-    ('p', 'Esta memoria existe en dos versiones con el mismo texto: la **completa**, con la captura de cada pantalla (526 figuras), y la **resumida**, con las pantallas clave del flujo.'),
+    ('p', 'Esta memoria existe en dos versiones con el mismo texto: la **completa**, con la captura de cada pantalla ({NFIG_COMPLETA} figuras; quité las pantallas repetidas), y la **resumida**, con las pantallas clave del flujo.'),
 
     ('h1', '2. Preparación: base de datos y módulos'),
     ('h2', '2.1. Base de datos «cerveceria»'),
