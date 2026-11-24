@@ -1,10 +1,11 @@
 {
-  "name": "pw",
+  "name": "odoo-v4-capturas",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Pasos de Playwright que recorren Odoo 17 y hacen las capturas de la memoria v4 (Edge por CDP, rutas en ../config.json)",
+  "main": "run.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "paso": "node run.js",
+    "start": "node run.js"
   },
   "keywords": [],
   "author": "",
