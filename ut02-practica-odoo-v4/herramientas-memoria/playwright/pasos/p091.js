@@ -15,6 +15,6 @@ module.exports = async ({ page, shot, log, call, BASE }) => {
   await page.evaluate(() => { const e = document.querySelector('.o_field_widget[name=attendance_kiosk_url]'); if (e) e.style.filter = 'blur(7px)'; });
   await page.mouse.move(1350, 860); await shot('ajustes-asistencias-guardados-de-verdad');
   const k1 = await call('res.company', 'read', [[1], ['attendance_kiosk_mode', 'hr_attendance_overtime', 'overtime_start_date', 'attendance_kiosk_key']]);
-  log('despues=' + JSON.stringify(k1).replace(/"attendance_kiosk_key":"[^"]+"/, '"key":"(oculta)"') + ' keyCambiada=' + (k0[0].attendance_kiosk_key !== 'a67cf414-da13-4165-ae4b-7a489f788a80'));
+  log('despues=' + JSON.stringify(k1).replace(/"attendance_kiosk_key":"[^"]+"/, '"key":"(oculta)"') + ' keyCambiada=' + (k0[0].attendance_kiosk_key !== k1[0].attendance_kiosk_key));
   log(JSON.stringify(await call('hr.attendance', 'search_read', [[]], { fields: ['employee_id', 'worked_hours', 'overtime_hours'] })));
 };
