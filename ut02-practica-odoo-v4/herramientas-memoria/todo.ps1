@@ -9,17 +9,17 @@ $base = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot $cfg.salida))
 $oo = $cfg.openoffice_python
 $env:PYTHONIOENCODING = 'utf-8'
 
+# convertir_oo.py arranca su propio OpenOffice (perfil y puerto propios) y lo cierra al acabar,
+# asi que no hace falta cerrar nada a mano ni se toca un OpenOffice que tengas abierto.
+
 foreach ($m in @(@('completa', 'completa'), @('corta', 'resumida'))) {
   $b = "$base-$($m[1])"
   python "$PSScriptRoot\construir.py" "$b.docx" $m[0]
   if ($LASTEXITCODE) { throw "construir.py ha fallado ($($m[1]))" }
-  Get-Process soffice* -ErrorAction SilentlyContinue | Stop-Process -Force
   & $oo "$PSScriptRoot\convertir_oo.py" odt "$b.docx" "$b.odt" "$b.pdf"
-  Start-Sleep 3; Get-Process soffice* -ErrorAction SilentlyContinue | Stop-Process -Force
   if ($LASTEXITCODE) { throw "convertir_oo.py odt ha fallado ($($m[1]))" }
   python "$PSScriptRoot\arreglar_odt.py" "$b.odt"
   & $oo "$PSScriptRoot\convertir_oo.py" pdf "$b.docx" "$b.odt" "$b.pdf"
-  Start-Sleep 3; Get-Process soffice* -ErrorAction SilentlyContinue | Stop-Process -Force
   if ($LASTEXITCODE) { throw "convertir_oo.py pdf ha fallado ($($m[1]))" }
 }
 Get-ChildItem "$base-*" | Select-Object Name, @{n='MB';e={[math]::Round($_.Length/1MB,1)}}

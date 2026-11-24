@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 # Python 2.7 de OpenOffice 4: .docx -> .odt (actualizando el índice) -> .pdf
 import os, sys, time, subprocess
-OO = r'C:\Program Files (x86)\OpenOffice 4\program'
+# Se ejecuta con el python.exe de OpenOffice (todo.ps1 lo toma de config.json). Ese lanzador arranca
+# program\python-core-2.7.18\bin\python.exe, así que se sube de carpeta hasta la que tiene soffice.exe.
+OO = os.path.dirname(os.path.abspath(sys.executable))
+while not os.path.exists(os.path.join(OO, 'soffice.exe')) and os.path.dirname(OO) != OO:
+    OO = os.path.dirname(OO)
 sys.path.append(OO)
 os.environ['PATH'] = OO + ';' + os.environ['PATH']
 os.environ['URE_BOOTSTRAP'] = 'vnd.sun.star.pathname:' + OO + r'\fundamental.ini'
@@ -17,15 +21,20 @@ def url(path):
     return uno.systemPathToFileUrl(os.path.abspath(path))
 
 null = open(os.devnull, 'w')
+# Perfil de usuario propio (UserInstallation) y puerto propio: así esta instancia de OpenOffice es
+# independiente de un OpenOffice que tengas abierto o de la conversión de otra práctica (la v5 usa el 2003).
+PUERTO = '2002'
+PERFIL = os.path.join(os.environ.get('TEMP', r'C:\Windows\Temp'), 'oo-perfil-memoria-v4')
 proc = subprocess.Popen([OO + r'\soffice.exe', '-headless', '-invisible', '-nologo', '-norestore',
-                         '-accept=socket,host=127.0.0.1,port=2002;urp;'],
+                         '-nofirststartwizard', '-env:UserInstallation=' + url(PERFIL),
+                         '-accept=socket,host=127.0.0.1,port=' + PUERTO + ';urp;'],
                         stdout=null, stderr=null, creationflags=0x8)
 ctx = None
 local = uno.getComponentContext()
 resolver = local.ServiceManager.createInstanceWithContext('com.sun.star.bridge.UnoUrlResolver', local)
 for i in range(60):
     try:
-        ctx = resolver.resolve('uno:socket,host=127.0.0.1,port=2002;urp;StarOffice.ComponentContext')
+        ctx = resolver.resolve('uno:socket,host=127.0.0.1,port=' + PUERTO + ';urp;StarOffice.ComponentContext')
         break
     except Exception:
         time.sleep(1)
@@ -59,4 +68,7 @@ try:
     desktop.terminate()
 except Exception:
     pass
+# cierra solo el OpenOffice que ha abierto este script (y sus hijos), nunca otros
+time.sleep(2)
+subprocess.call(['taskkill', '/PID', str(proc.pid), '/T', '/F'], stdout=null, stderr=null)
 print('ok ' + pdf)
