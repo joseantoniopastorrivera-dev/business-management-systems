@@ -9,3 +9,8 @@ guia-defensa-*.md
 # Notas de trabajo internas (no forman parte de la entrega)
 ut03-practica-odoo-v3/cowork-brief.md
 ut03-practica-odoo-v3/al-llegar-a-casa.md
+
+# Herramientas de la v4: dependencias, registros y capturas de depuración
+node_modules/
+ut02-practica-odoo-v4/herramientas-memoria/*.log
+ut02-practica-odoo-v4/herramientas-memoria/playwright/pasos/*.png
