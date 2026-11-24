@@ -1,0 +1,10 @@
+{
+  "_comentario": "Rutas y direcciones de las herramientas de la memoria. Las rutas relativas se resuelven desde esta carpeta (herramientas-memoria).",
+  "capturas": "../capturas",
+  "logo": "../logo-cerveceria-springfield.png",
+  "salida": "../ut02-practica4-cerveceria-odoo17-joseantonio-pastor",
+  "openoffice_python": "C:/Program Files (x86)/OpenOffice 4/program/python.exe",
+  "odoo_url": "http://192.168.1.132:8069",
+  "cdp_url": "http://127.0.0.1:9222",
+  "viewport": { "width": 1440, "height": 900 }
+}

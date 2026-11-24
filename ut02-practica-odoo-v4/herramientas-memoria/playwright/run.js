@@ -4,15 +4,18 @@ const { chromium } = require('playwright-core');
 const fs = require('fs');
 const path = require('path');
 
-const OUT = 'C:/dev/Sistemas-Gestion-Empresarial/ut02-practica-odoo-v4/capturas';
-const BASE = 'http://192.168.1.132:8069';
+// Rutas y direcciones en ../config.json (las relativas, desde la carpeta de config.json)
+const CFG_FILE = process.env.MEMORIA_CONFIG || path.join(__dirname, '..', 'config.json');
+const CFG = JSON.parse(fs.readFileSync(CFG_FILE, 'utf8'));
+const OUT = path.resolve(path.dirname(CFG_FILE), CFG.capturas);
+const BASE = CFG.odoo_url;
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
-  const browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
+  const browser = await chromium.connectOverCDP(CFG.cdp_url);
   const ctx = browser.contexts()[0];
   let page = ctx.pages().find(p => p.url().startsWith(BASE)) || ctx.pages()[0];
-  await page.setViewportSize({ width: 1440, height: 900 }).catch(() => {});
+  await page.setViewportSize(CFG.viewport).catch(() => {});
   const next = () => {
     const nums = fs.readdirSync(OUT).map(f => parseInt(f, 10)).filter(n => !isNaN(n));
     return (nums.length ? Math.max(...nums) : 0) + 1;

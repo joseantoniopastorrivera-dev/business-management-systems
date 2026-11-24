@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
 # Genera el pie de cada figura a partir del nombre de la captura (NNN-descripcion-con-guiones.png).
 # Se corrigen tildes y nombres propios con un diccionario; los pies importantes se escriben a mano en PIES.
-import os, re
+import os, re, sys
+from functools import lru_cache
 
-CAPT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'capturas')
-SLUG = {int(f[:3]): f[4:-4] for f in os.listdir(CAPT) if f[:3].isdigit() and f.endswith('.png')}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from configuracion import ruta
+
+
+@lru_cache(maxsize=None)
+def slugs(capt=None):
+    """{número: descripción} de cada captura. Se lee al usarse (no al importar) y de la carpeta de config.json."""
+    capt = capt or ruta('capturas')
+    return {int(f[:3]): f[4:-4] for f in os.listdir(capt) if f[:3].isdigit() and f.endswith('.png')}
 
 # Frases (se aplican primero, de más larga a más corta)
 FRASES = {
@@ -133,9 +141,9 @@ def auto(slug):
 
 
 def pie(n):
-    return PIES.get(n) or auto(SLUG[n])
+    return PIES.get(n) or auto(slugs()[n])
 
 
 if __name__ == '__main__':
-    for n in sorted(SLUG):
+    for n in sorted(slugs()):
         print('%03d %s' % (n, pie(n)))

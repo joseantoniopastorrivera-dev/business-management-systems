@@ -15,11 +15,16 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from contenido_v4 import PORTADA, VERSION, INCIDENCIAS, INCIDENCIAS_DETALLE, C, CORTA
 from pies import pie as pie_auto
+from configuracion import ruta
 
-CAPT = sys.argv[1]          # carpeta capturas
-LOGO = sys.argv[2]          # logo de la empresa
-SALIDA = sys.argv[3]        # .docx de salida
-MODO = sys.argv[4] if len(sys.argv) > 4 else 'completa'   # completa | corta
+# Uso: construir.py SALIDA.docx [completa|corta]   (capturas y logo salen de config.json)
+# Se mantiene también la forma antigua: construir.py CAPTURAS LOGO SALIDA.docx MODO
+if len(sys.argv) >= 5:
+    CAPT, LOGO, SALIDA, MODO = sys.argv[1:5]
+else:
+    CAPT, LOGO = ruta('capturas'), ruta('logo')
+    SALIDA = sys.argv[1]
+    MODO = sys.argv[2] if len(sys.argv) > 2 else 'completa'
 AZUL = RGBColor(0x1F, 0x38, 0x64)
 
 capturas = {int(f[:3]): os.path.join(CAPT, f) for f in os.listdir(CAPT) if f[:3].isdigit() and f.endswith('.png')}
