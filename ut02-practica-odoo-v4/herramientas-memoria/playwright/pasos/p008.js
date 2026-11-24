@@ -1,0 +1,24 @@
+const L = require('./lib');
+module.exports = async ({ page, shot, log, call, BASE }) => {
+  await L.nuevo(page);
+  await shot('compania-nueva-formulario-vacio');
+  await L.campo(page, 'name', 'La taberna de Moe, S.L.');
+  await L.campo(page, 'street', 'Calle Springfield, 742');
+  await L.campo(page, 'zip', '28001');
+  await L.campo(page, 'city', 'Madrid');
+  await L.m2o(page, 'state_id', 'Madrid', null, 'Madrid');
+  await L.campo(page, 'vat', 'ESB12345674');
+  await L.campo(page, 'phone', '+34 910 000 742');
+  await L.campo(page, 'email', 'moe@tabernademoe.es');
+  await L.campo(page, 'website', 'www.tabernademoe.es');
+  await page.locator('.o_field_widget[name="logo"] input[type=file]').setInputFiles('C:/dev/Sistemas-Gestion-Empresarial/ut02-practica-odoo-v4/logo-taberna-moe.png');
+  await page.waitForTimeout(2500);
+  await shot('compania-taberna-de-moe-datos-rellenos');
+  await L.guardar(page); await shot('compania-taberna-de-moe-guardada');
+  await page.locator('.o_breadcrumb a').first().click(); await L.esperar(page);
+  await shot('lista-companias-cerveceria-y-taberna');
+  log(JSON.stringify(await call('res.company', 'search_read', [[]], { fields: ['name', 'chart_template', 'partner_id'] })));
+  log(JSON.stringify(await call('res.users', 'read', [[2], ['company_ids', 'company_id']])));
+  log(JSON.stringify(await call('stock.warehouse', 'search_read', [[]], { fields: ['name', 'code', 'company_id'] })));
+  log(JSON.stringify(await call('res.partner', 'search_read', [[['is_company', '=', true]]], { fields: ['name', 'company_id'] })));
+};

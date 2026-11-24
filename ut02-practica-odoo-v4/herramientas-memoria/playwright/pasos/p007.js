@@ -1,0 +1,25 @@
+const L = require('./lib');
+module.exports = async ({ page, shot, log, call, BASE }) => {
+  await L.menuApps(page); await shot('menu-de-aplicaciones-con-modulos-de-la-fabrica'); await page.keyboard.press('Escape');
+  log(JSON.stringify(await call('res.company', 'read', [[1], ['chart_template', 'name', 'partner_id']])));
+  await L.ir(page, BASE, 'action=base_setup.action_general_configuration');
+  const b = await L.ajuste(page, 'Actualizar información'); await shot('ajustes-bloque-companias-my-company');
+  await page.locator('a, button', { hasText: 'Actualizar información' }).first().click(); await page.waitForSelector('.o_form_view .o_field_widget[name=name]'); await L.esperar(page);
+  await shot('ficha-empresa-sin-datos');
+  await L.campo(page, 'name', 'Cervecería artesana Springfield, S.L.');
+  await shot('empresa-nombre-cerveceria-artesana-springfield');
+  await L.campo(page, 'street', 'Calle del Lúpulo, 14');
+  await L.campo(page, 'street2', 'Polígono Industrial La Garena');
+  await L.campo(page, 'zip', '28806');
+  await L.campo(page, 'city', 'Alcalá de Henares');
+  await L.m2o(page, 'state_id', 'Madrid', null, 'Madrid');
+  await L.campo(page, 'vat', 'ESB87654323');
+  await L.campo(page, 'phone', '+34 918 000 742');
+  await L.campo(page, 'email', 'administracion@cerveceriaspringfield.es');
+  await L.campo(page, 'website', 'www.cerveceriaspringfield.es');
+  await shot('empresa-direccion-cif-y-contacto');
+  await page.locator('.o_field_widget[name="logo"] input[type=file]').setInputFiles('C:/dev/Sistemas-Gestion-Empresarial/ut02-practica-odoo-v4/logo-cerveceria-springfield.png');
+  await page.waitForTimeout(2500); await shot('empresa-logo-subido-sin-guardar');
+  await L.guardar(page); await shot('empresa-cerveceria-guardada');
+  log(JSON.stringify(await call('res.company', 'read', [[1], ['name', 'vat', 'city', 'state_id']])));
+};
