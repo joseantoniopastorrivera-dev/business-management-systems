@@ -15,3 +15,9 @@ node_modules/
 ut02-practica-odoo-v4/herramientas-memoria/*.log
 ut02-practica-odoo-v4/herramientas-memoria/playwright/pasos/*.png
 ut02-practica-odoo-v4/herramientas-memoria/playwright/pasos/_sondas/
+
+# Herramientas de la v5: registros, sondas de depuración y caché
+ut02-practica-odoo-v5/herramientas-memoria/*.log
+ut02-practica-odoo-v5/herramientas-memoria/_cache/
+ut02-practica-odoo-v5/herramientas-memoria/playwright/pasos/_sondas/
+ut02-practica-odoo-v5/herramientas-memoria/playwright/pasos/*.png
