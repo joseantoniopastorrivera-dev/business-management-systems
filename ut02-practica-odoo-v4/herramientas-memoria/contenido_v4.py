@@ -45,6 +45,7 @@ INCIDENCIAS = [
     ('I-23', 'Los ajustes de Asistencias no se guardaban: falta «Empezar desde»', '17.5', 'Resuelta'),
     ('I-24', 'La URL secreta del quiosco aparece en las capturas', '17.5', 'Resuelta'),
     ('I-25', 'El control nocturno no respeta el descanso de 12 h entre jornadas', '17.5', 'Analizada'),
+    ('I-26', 'Las facturas de proveedor se contabilizan en la 410 y no en la 400', '15.1', 'Corregida en la v5'),
 ]
 
 INCIDENCIAS_DETALLE = [
@@ -73,6 +74,7 @@ INCIDENCIAS_DETALLE = [
     ('I-23', 'Ajustes sin guardar', 'Al activar el recuento de horas extra el campo «Empezar desde» es obligatorio; vacío, Odoo deja los ajustes en «Cambios no guardados» sin avisar en el resto de la página. Con fecha 01/11/2026 se guardan: modo selección manual y horas extra (Javier +1,5 h el 23/11).'),
     ('I-24', 'URL del quiosco publicada', 'Cualquiera con el enlace del quiosco puede fichar. Como el principio de la URL aparece en tres capturas de los ajustes, antes de publicar el trabajo se pulsa «Generar una nueva URL para el modo de quiosco»: la antigua deja de funcionar y la nueva se oculta en la captura.'),
     ('I-25', 'Descanso entre jornadas', 'Daniel sale el 23/11 a las 17:00 y vuelve a las 02:45: 9 h 45 min, menos de las 12 h del art. 34.3 ET. Odoo no lo valida. La reducción a 7 h solo cabe en los cambios de turno y con compensación (art. 19 del RD 1561/1995). Solución real: un turno de noche o una alarma remota de temperatura en los fermentadores, y que su jornada del 24 no empiece antes de las 15:30.'),
+    ('I-26', 'Cuenta 410 en las facturas de proveedor', 'La cuenta a pagar por defecto de las dos compañías era la 410000 «Acreedores por prestaciones de servicios», pero las compras de mercaderías y materias primas van a la 400000 «Proveedores» según el PGC. Las capturas de los apuntes (figuras de la factura de la taberna y de los apuntes agrupados de la fábrica) muestran la 410. Como todas las facturas están pagadas y su saldo es 0, no hay nada que reclasificar. En la v5 se cambia la cuenta por defecto a la 400 en las dos compañías (incidencia I-12 de la v5).'),
 ]
 
 # Capturas que entran en la versión corta (las demás solo en la completa)
@@ -176,7 +178,7 @@ C = [
         ['Vinos (taberna)', 'Manual', '-', '-', '-', 'FIFO'],
     ]),
     ('p', 'Con esta configuración la compra se carga en la 601 y la recepción la pasa a existencias (310); el consumo en fabricación va a la 611; el producto terminado entra en la 350 con abono a la 712, y la venta lo saca con cargo a la 712. **FEFO** (primero en caducar, primero en salir) se aplica a lúpulos, levaduras y barriles. Las maltas también tienen caducidad, pero las dejé en **FIFO** a propósito: caducan a los 365 días y se consumen en pocas semanas, así que el primer saco que entra es siempre el primero que caduca y las dos estrategias eligen el mismo lote.'),
-    ('p', '**Cómo leer la 601/611 y la 712 en esta configuración.** Odoo usa la cuenta de entrada de la categoría como puente entre la recepción y la factura: la recepción carga la 310 y abona la 601, y la factura del proveedor carga la 601 contra la 400. Por eso la **601 queda a cero** y todo el consumo aparece en la **611**. El resultado es el mismo, pero el reparto no sigue el modelo del PGC, donde la 601 recoge las compras y la 611 solo la variación de existencias (iniciales menos finales) al cierre. Con la **712** pasa algo parecido: al terminar una OF, Odoo la abona por el coste completo del lote (materiales y también cocción, fermentación y embarrilado), pero en Community nadie carga esos costes de transformación como gasto, porque no hay nóminas (64x) ni facturas de suministros (628). La parte de materiales se compensa con la 611; la de transformación queda como un ingreso sin su gasto. La revalorización del apartado 11.4 reduce esa diferencia, pero no la elimina; se cerraría con asientos de personal y suministros.'),
+    ('p', '**Cómo leer la 601/611 y la 712 en esta configuración.** Odoo usa la cuenta de entrada de la categoría como puente entre la recepción y la factura: la recepción carga la 310 y abona la 601, y la factura del proveedor carga la 601 contra la 410 (incidencia I-26). Por eso la **601 queda a cero** y todo el consumo aparece en la **611**. El resultado es el mismo, pero el reparto no sigue el modelo del PGC, donde la 601 recoge las compras y la 611 solo la variación de existencias (iniciales menos finales) al cierre. Con la **712** pasa algo parecido: al terminar una OF, Odoo la abona por el coste completo del lote (materiales y también cocción, fermentación y embarrilado), pero en Community nadie carga esos costes de transformación como gasto, porque no hay nóminas (64x) ni facturas de suministros (628). La parte de materiales se compensa con la 611; la de transformación queda como un ingreso sin su gasto. La revalorización del apartado 11.4 reduce esa diferencia, pero no la elimina; se cerraría con asientos de personal y suministros.'),
     ('figs', 91, 108),
 
     ('h1', '7. Proveedores y productos'),
@@ -279,13 +281,13 @@ C = [
 
     ('h1', '15. Facturación, cobros, pagos y contabilidad'),
     ('h2', '15.1. Facturas de proveedor de la fábrica'),
-    ('p', 'Cada factura sale de su pedido con «Crear factura». Al facturar «sobre cantidades recibidas» solo se factura lo que ha llegado. Añadí el número de factura del proveedor y la fecha, la confirmé (601/602 + 472 contra 400) y registré el pago por Banco.'),
+    ('p', 'Cada factura sale de su pedido con «Crear factura». Al facturar «sobre cantidades recibidas» solo se factura lo que ha llegado. Añadí el número de factura del proveedor y la fecha, la confirmé (601/602 + 472 contra la 410, y no contra la 400: incidencia I-26) y registré el pago por Banco.'),
     ('figs', 372, 391),
     ('h2', '15.2. Factura a la taberna'),
     ('p', 'Desde S00001 se crea la factura **INV/2026/00001**: 1.710 € en la 701, 359,10 € de IVA en la 477 (casilla 09 del modelo 303) y 2.069,10 € en la 430.'),
     ('figs', 392, 396),
     ('h2', '15.3. La taberna registra la factura y paga; la fábrica cobra'),
-    ('p', 'La taberna crea su factura de proveedor desde P00005 con la referencia INV/2026/00001 (600 + 472 contra 400) y paga las tres facturas. La fábrica registra el cobro y su factura queda **Pagada**.'),
+    ('p', 'La taberna crea su factura de proveedor desde P00005 con la referencia INV/2026/00001 (600 + 472 contra la 410, incidencia I-26) y paga las tres facturas. La fábrica registra el cobro y su factura queda **Pagada**.'),
     ('figs', 397, 411),
     ('h2', '15.4. Asientos, conciliación y límites de Community'),
     ('p', 'Todo el flujo está en la contabilidad. Los apuntes agrupados por cuenta cuadran (Debe = Haber = 50.817,14 €), y en la 430 la factura y su cobro tienen el **mismo número de conciliación**.'),
