@@ -124,7 +124,7 @@ PIES = {
     370: 'Incidencia I-17: la copia lanzada desde /home/alumno falla en el find de la rotación',
     371: 'Punto de restauración: copia de «cerveceria» (.dump + filestore) lanzada desde /tmp',
     396: 'Apuntes de la factura INV/2026/00001: 701000 Ventas, 477000 IVA repercutido y 430000 Clientes',
-    399: 'Apuntes de la factura en la taberna: 600000 Compras, 472000 IVA soportado y 400000 Proveedores',
+    399: 'Apuntes de la factura en la taberna: 600000 Compras, 472000 IVA soportado y 410000 Acreedores por prestaciones de servicios (debería ser la 400000, ver I-26)',
     414: 'Trazabilidad del lote de lúpulo LL-2026-CAS-041: entró por FAB/IN/00002 y se consumió en FAB/MO/00005',
     417: 'Trazabilidad completa del lote IPA-261123-01: de los lotes de proveedor hasta la entrega a la taberna',
     423: 'Apuntes agrupados por cuenta del PGC: Debe = Haber = 50.817,14 €',
