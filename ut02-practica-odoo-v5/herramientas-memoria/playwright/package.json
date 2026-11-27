@@ -1,0 +1,13 @@
+{
+  "name": "capturas-odoo-v5",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pasos de Playwright que manejan Odoo 17 en Edge por CDP y guardan las capturas de la práctica v5",
+  "type": "commonjs",
+  "scripts": {
+    "paso": "node run.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.48.2"
+  }
+}

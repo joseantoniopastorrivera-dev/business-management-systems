@@ -1,0 +1,13 @@
+{
+  "_nota": "Rutas relativas a la carpeta de la v5 (ut02-practica-odoo-v5). Nada de contraseñas aquí.",
+  "odoo": "http://192.168.56.102:8069",
+  "bd": "cerveceria-v5",
+  "cdpPuerto": 9223,
+  "viewport": { "ancho": 1280, "alto": 800, "escala": 2 },
+  "capturas": "capturas",
+  "manifiesto": "capturas.json",
+  "logo": "logo-cerveceria-springfield.png",
+  "salida": "ut02-practica5-cerveceria-odoo17-joseantonio-pastor",
+  "openoffice": "C:/Program Files (x86)/OpenOffice 4/program",
+  "edge": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+}
